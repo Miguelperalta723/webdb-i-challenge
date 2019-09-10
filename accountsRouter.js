@@ -10,78 +10,76 @@ router.get('/', (req, res) => {
         res.status(200).json(accounts);
       })
       .catch(() => {
-        res.status(500).json({ message: 'Could not retrieve the list of accounts' });
+        res.status(500).json({ message: 'cant get accounts' });
       });
 });
 
 router.get("/:id", (req, res) => {
     const { id } = req.params;
     db("accounts")
-      .where({ id: id })
+      .where({ id })
       .first()
       .then(account => {
         if (account) {
           res.status(200).json(account);
         } else {
-          res.status(404).json({ message: "Account does not exist" });
+          res.status(404).json({ message: "check account id" });
         }
       })
       .catch(err => {
         res
           .status(500)
-          .json({ message: "Unable to fetch account from database" });
+          .json({ message: "something went wrong" });
       });
 });
 
 router.post("/", (req, res) => {
     const newAccount = req.body;
     if (!newAccount.name) {
-      res.status(404).json({ message: "Please add an account name" });
+      res.status(404).json({ message: "no account name" });
     }
     if (!newAccount.budget) {
-      res.status(404).json({ message: "Please add an account budget" });
+      res.status(404).json({ message: "no account budget" });
     }
-    db("accounts")
-    .insert(newAccount, "id")
+    db("accounts").insert(newAccount)
     .then(account => {
         res.status(201).json(account);
     })
     .catch(err => {
-        res.status(500).json({ message: "Unable to add account to database" });
+        res.status(500).json({ message: "Unable to add account" });
     });
 });
   
 router.put("/:id", (req, res) => {
     const { id } = req.params;
+    const changes = req.body;
     db('accounts')
-    .where({ id: id })
-    .update(req.body)
+    .where({ id }).update(changes)
     .then(count => {
       if (count) {
-        res.status(200).json({ message: `${count} record(s) updated` });
+        res.status(200).json({ message: 'account updated' });
       } else {
         res.status(404).json({ message: 'Account not found' });
       }
     })
     .catch(() => {
-      res.status(500).json({ message: 'Could not update the account' });
+      res.status(500).json({ message: 'Could not update account' });
     });
 });
   
 router.delete("/:id", (req, res) => {
     const { id } = req.params;
     db("accounts")
-    .where({ id: id })
-    .del()
+    .where({ id }).del()
     .then(count => {
         if (count) {
-          res.status(200).json({ message: `${count} account has been deleted` });
+          res.status(200).json({ message: 'account deleted' });
         } else {
           res.status(404).json({ message: "Account not found" });
         }
     })
     .catch(err => {
-        res.status(500).json({ message: "Error removing from database" });
+        res.status(500).json({ message: "Error deleting from database" });
     });
 });
 
